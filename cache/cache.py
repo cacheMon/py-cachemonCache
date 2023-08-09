@@ -13,7 +13,8 @@ class Cache(object):
     def __init__(
         self,
         cache_size: int,
-        flash_mb: int,
+        dram_size_mb: int,
+        flash_size_mb: int,
         flash_path: str,
         ttl_sec: int,
         eviction_callback: Callable,
@@ -22,14 +23,16 @@ class Cache(object):
 
         Args:
             cache_size (int): the size of the cache in objects
-            flash_mb (int): the flash size in MB
+            dram_size_mb (int): the dram size in MB, if specified, cache_size (in objects) is ignored
+            flash_size_mb (int): the flash size in MB
             flash_path (str): the path to a file on the flash
             ttl_sec (int): the default retention time in seconds, objects inserted into the cache will expire after this time
             eviction_callback (Callable): a callback function that will be called when an object is evicted from the cache
         """
 
         self.cache_size = cache_size
-        self.flash_mb = flash_mb
+        self.dram_size_byte = dram_size_mb * 1024 * 1024
+        self.flash_size_byte = flash_size_mb * 1024 * 1024
         self.flash_path = flash_path
         self.ttl_sec = ttl_sec
         self.eviction_callback = eviction_callback

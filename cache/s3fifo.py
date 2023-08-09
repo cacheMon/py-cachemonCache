@@ -1,140 +1,156 @@
-# import sys
-# import time
+import sys
+import time
 
 
-# from typing import Callable, Optional, Any, List, Tuple, Dict, Union
-# from .cache import Cache
+from typing import Callable, Optional, Any, List, Tuple, Dict, Union
+from .cache import Cache
 
 
-# # Class for the doubly-linked-list node objects.
-# class S3FIFOValueNode(ValueError):
-#     __slots__ = ("key", "value", "exp_time", "visited")
+# Class for the doubly-linked-list node objects.
+class S3FIFOValueNode(ValueError):
+    __slots__ = ("key", "value", "exp_time", "visited")
 
-#     def __init__(self):
-#         self.key = None
-#         self.value = None
-#         self.exp_time = sys.maxsize
+    def __init__(self):
+        self.key = None
+        self.value = None
+        self.exp_time = sys.maxsize
 
 
-# class S3FIFO(Cache):
-#     def __init__(
-#         self,
-#         cache_size: int,
-#         flash_mb: int = 0,
-#         flash_path: str = None,
-#         ttl_sec: int = sys.maxsize,
-#         callback: Callable = None,
-#         *args,
-#         **kwargs
-#     ):
-#         super().__init__(cache_size, flash_mb, flash_path, ttl_sec, callback, *args, **kwargs)
+class S3FIFO(Cache):
+    def __init__(
+        self,
+        cache_size: int,
+        dram_size_mb: int = 0,
+        flash_size_mb: int = 0,
+        flash_path: str = None,
+        ttl_sec: int = sys.maxsize,
+        eviction_callback: Callable = None,
+        *args,
+        **kwargs
+    ):
+        """ create a S3FIFO cache
 
-#         small_fifo_size_ratio = kwargs.get("small_fifo_size_ratio", 0.1)
-#         small_fifo_size = int(cache_size * small_fifo_size_ratio)
-#         large_fifo_size = cache_size - small_fifo_size
+        Args:
+            cache_size (int): cache size in objects
+            dram_size_mb (int, optional): dram size in MB, if specified, cache_size will be ignored, currently not used. Defaults to 0.
+            flash_size_mb (int, optional): flash size in MB. Defaults to 0.
+            flash_path (str, optional): path to a file on the flash. Defaults to None.
+            ttl_sec (int, optional): the default retention time. Defaults to sys.maxsize.
+            eviction_callback (Callable, optional): eviction callback. Defaults to None.
 
-#         self.small_fifo = [S3FIFOValueNode() for _ in range(small_fifo_size)]
-#         self.large_fifo = [S3FIFOValueNode() for _ in range(large_fifo_size)]
-#         self.ghost_fifo = [S3FIFOValueNode() for _ in range(small_fifo_size)]
+        Raises:
+            ValueError: _description_
+        """
+        super().__init__(
+            cache_size, dram_size_mb, flash_size_mb, flash_path, ttl_sec, eviction_callback, *args, **kwargs
+        )
 
-#         if self.flash_mb > 0 or self.flash_path is not None:
-#             raise ValueError("S3FIFO is the only supported flash cache")
+        small_fifo_size_ratio = kwargs.get("small_fifo_size_ratio", 0.1)
+        small_fifo_size = int(cache_size * small_fifo_size_ratio)
+        large_fifo_size = cache_size - small_fifo_size
 
-#     def put(self, key: Any, value: Any, ttl_sec: int = sys.maxsize) -> None:
-#         """insert a key value pair into the cache
-#         if the key is in the cache, the value will be updated
-#         """
+        self.small_fifo = [S3FIFOValueNode() for _ in range(small_fifo_size)]
+        self.large_fifo = [S3FIFOValueNode() for _ in range(large_fifo_size)]
+        self.ghost_fifo = [S3FIFOValueNode() for _ in range(small_fifo_size)]
 
-#         if key in self.table:
-#             node = self.table[key]
+        if flash_size_mb > 0 or flash_path is not None:
+            raise ValueError("S3FIFO is the only supported flash cache")
 
-#             # Replace the value.
-#             node.key = key
-#             node.value = value
-#             node.exp_time = time.time() + ttl_sec
+    def put(self, key: Any, value: Any, ttl_sec: int = sys.maxsize) -> None:
+        """insert a key value pair into the cache
+        if the key is in the cache, the value will be updated
+        """
 
-#             return
+        if key in self.table:
+            node = self.table[key]
 
-#         node = S3FIFOValueNode()
-#         node.key = key
-#         node.value = value
-#         node.exp_time = time.time() + ttl_sec
-#         node.visited = False
+            # Replace the value.
+            node.key = key
+            node.value = value
+            node.exp_time = time.time() + ttl_sec
 
-#         # Add the node to the dictionary under the new key.
-#         self.table[key] = node
+            return
 
-#         self.prepend_to_head(node)
+        node = S3FIFOValueNode()
+        node.key = key
+        node.value = value
+        node.exp_time = time.time() + ttl_sec
+        node.visited = False
 
-#         if len(self.table) > self.size:
-#             self.evict()
+        # Add the node to the dictionary under the new key.
+        self.table[key] = node
 
-#     def evict(self) -> Any:
-#         """evict an object from the cache
+        self.prepend_to_head(node)
 
-#         Returns:
-#             the evicted key
-#         """
+        if len(self.table) > self.size:
+            self.evict()
 
-#         assert self.tail is not None
+    def evict(self) -> Any:
+        """evict an object from the cache
 
-#         key_to_evict = self.tail.key
-#         if self.eviction_callback is not None:
-#             self.eviction_callback(self.tail.key, self.tail.value)
+        Returns:
+            the evicted key
+        """
 
-#         del self.table[key_to_evict]
-#         self.tail = self.tail.prev
-#         if self.tail is not None:
-#             self.tail.next = None
-#         else:
-#             self.head = None
+        assert self.tail is not None
 
-#         return key_to_evict
+        key_to_evict = self.tail.key
+        if self.eviction_callback is not None:
+            self.eviction_callback(self.tail.key, self.tail.value)
 
-#     def get(self, key, default=None):
-#         node = self.get_base(key, default)
+        del self.table[key_to_evict]
+        self.tail = self.tail.prev
+        if self.tail is not None:
+            self.tail.next = None
+        else:
+            self.head = None
 
-#         if node is None:
-#             return default
+        return key_to_evict
 
-#         return node.value
+    def get(self, key, default=None):
+        node = self.get_base(key, default)
 
-#     def delete(self, key: Any) -> None:
-#         """remove the key from the cache
+        if node is None:
+            return default
 
-#         Args:
-#             key (Any): the key to remove
-#         """
+        return node.value
 
-#         node = self.table[key]
+    def delete(self, key: Any) -> None:
+        """remove the key from the cache
 
-#         if node is not None:
-#             self.remove_from_list(node)
-#             del self.table[key]
+        Args:
+            key (Any): the key to remove
+        """
 
-#     # Increases the size of the cache by inserting n empty nodes at the tail
-#     # of the list.
-#     def prepend_to_head(self, node):
-#         if self.head is None:
-#             assert self.tail is None
-#             self.head = node
-#             self.tail = node
-#             node.next = None
-#             node.prev = None
+        node = self.table[key]
 
-#             return
+        if node is not None:
+            self.remove_from_list(node)
+            del self.table[key]
 
-#         node.next = self.head
-#         node.prev = None
-#         self.head.prev = node
-#         self.head = node
+    # Increases the size of the cache by inserting n empty nodes at the tail
+    # of the list.
+    def prepend_to_head(self, node):
+        if self.head is None:
+            assert self.tail is None
+            self.head = node
+            self.tail = node
+            node.next = None
+            node.prev = None
 
-#     def remove_from_list(self, node):
-#         if node.prev is not None and node.next is not None:
-#             node.prev.next = node.next
-#             node.next.prev = node.prev
+            return
 
-#         if self.head == node:
-#             self.head = node.next
-#         if self.tail == node:
-#             self.tail = node.prev
+        node.next = self.head
+        node.prev = None
+        self.head.prev = node
+        self.head = node
+
+    def remove_from_list(self, node):
+        if node.prev is not None and node.next is not None:
+            node.prev.next = node.next
+            node.next.prev = node.prev
+
+        if self.head == node:
+            self.head = node.next
+        if self.tail == node:
+            self.tail = node.prev

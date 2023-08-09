@@ -11,6 +11,7 @@ class FIFOValueNode(ValueError):
     __slots__ = ("key", "value", "exp_time", "next", "prev")
 
     def __init__(self):
+        self.key = None
         self.value = None
         self.exp_time = sys.maxsize
         self.next = None
@@ -20,20 +21,36 @@ class FIFOValueNode(ValueError):
 class FIFO(Cache):
     def __init__(
         self,
-        size: int,
-        flash_mb: int = 0,
+        cache_size: int,
+        dram_size_mb: int = 0,
+        flash_size_mb: int = 0,
         flash_path: str = None,
         ttl_sec: int = sys.maxsize,
-        callback: Callable = None,
+        eviction_callback: Callable = None,
         *args,
         **kwargs
     ):
-        super().__init__(size, flash_mb, flash_path, ttl_sec, callback, *args, **kwargs)
+        """ create a FIFO cache
+
+        Args:
+            cache_size (int): cache size in objects
+            dram_size_mb (int, optional): dram size in MB, if specified, cache_size will be ignored, currently not used. Defaults to 0.
+            flash_size_mb (int, optional): flash size in MB. Defaults to 0.
+            flash_path (str, optional): path to a file on the flash. Defaults to None.
+            ttl_sec (int, optional): the default retention time. Defaults to sys.maxsize.
+            eviction_callback (Callable, optional): eviction callback. Defaults to None.
+
+        Raises:
+            ValueError: _description_
+        """
+        super().__init__(
+            cache_size, dram_size_mb, flash_size_mb, flash_path, ttl_sec, eviction_callback, *args, **kwargs
+        )
 
         self.head = None
         self.tail = None
 
-        if self.flash_mb > 0 or self.flash_path is not None:
+        if flash_size_mb > 0 or flash_path is not None:
             raise ValueError("S3FIFO is the only supported flash cache")
 
     def put(self, key: Any, value: Any, ttl_sec: int = sys.maxsize) -> None:

@@ -29,7 +29,7 @@ from cachemonCache import S3FIFO
 cache = LRU(size=10) # or cache = S3FIFO(size=10)
 
 # create a cache backed by your local flash, size is the number of objects in DRAM cache
-cache = S3FIFO(size=1000, flash_mb=1000, path="/disk/cachmon.data")
+cache = S3FIFO(size=1000, flash_size_mb=1000, path="/disk/cachmon.data")
 
 # put an item into the cache
 cache.put("key", "value")  # or cache["key"] = "value"
@@ -64,7 +64,7 @@ Cachemon can also be used as a decorator to cache the return value of a function
 
 ```python
 from cachemonCache import S3FIFO
-@S3FIFO(size=1000, flash_mb=1000, path="/disk/cachmon.data")
+@S3FIFO(size=1000, flash_size_mb=1000, path="/disk/cachmon.data")
 def foo(x):
     return x + 1
 ```

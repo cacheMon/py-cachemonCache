@@ -157,8 +157,8 @@ if __name__ == "__main__":
     random.seed()
 
     cache_size = 8
-    # for cache_type in [FIFO, LRU, Clock]:
-    for cache_type in [Clock]:
+    for cache_type in [FIFO, LRU, Clock]:
+    # for cache_type in [Clock]:
         print("Testing {}".format(cache_type.__name__))
         test_cache_basic(cache_type(cache_size), cache_size)
         test_cache_callback(cache_type(cache_size), cache_size)
