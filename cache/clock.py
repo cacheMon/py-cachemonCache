@@ -16,12 +16,20 @@ class ClockValueNode(ValueError):
         self.exp_time = sys.maxsize
         self.visited = False
 
+    def __str__(self) -> str:
+        return "ValueNode(key: {}, value: {}, exp_time: {}, visited {})".format(
+            self.key, self.value, self.exp_time, self.visited
+        )
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
 
 class Clock(Cache):
     def __init__(
         self,
         cache_size: int,
-        dram_size_mb: int = 0,        
+        dram_size_mb: int = 0,
         flash_size_mb: int = 0,
         flash_path: str = None,
         ttl_sec: int = sys.maxsize // 10,
@@ -29,7 +37,7 @@ class Clock(Cache):
         *args,
         **kwargs
     ):
-        """ create a clock cache
+        """create a clock cache
 
         Args:
             cache_size (int): cache size in objects
@@ -43,7 +51,15 @@ class Clock(Cache):
             ValueError: _description_
         """
         super().__init__(
-            cache_size, dram_size_mb, flash_size_mb, flash_path, ttl_sec, eviction_callback, *args, **kwargs
+            "Clock",
+            cache_size,
+            dram_size_mb,
+            flash_size_mb,
+            flash_path,
+            ttl_sec,
+            eviction_callback,
+            *args,
+            **kwargs
         )
 
         self.clock_buffer = [ClockValueNode() for _ in range(cache_size)]

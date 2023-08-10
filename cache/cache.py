@@ -12,6 +12,7 @@ from typing import Callable, Optional, Any, List, Tuple, Dict, Union
 class Cache(object):
     def __init__(
         self,
+        name: str,
         cache_size: int,
         dram_size_mb: int,
         flash_size_mb: int,
@@ -30,6 +31,7 @@ class Cache(object):
             eviction_callback (Callable): a callback function that will be called when an object is evicted from the cache
         """
 
+        self.name = name
         self.cache_size = cache_size
         self.dram_size_byte = dram_size_mb * 1024 * 1024
         self.flash_size_byte = flash_size_mb * 1024 * 1024
@@ -113,7 +115,7 @@ class Cache(object):
     def __repr__(self):
         for key, node in self.table.items():
             print("{:<8} {}".format(key, node))
-    
+
     def __str__(self):
         return self.__repr__()
 
@@ -149,7 +151,6 @@ class Cache(object):
 
     #     for key, value in reversed(elements):
     #         self[key] = value
-
 
     def put(self, key, value, ttl_sec):
         raise NotImplementedError

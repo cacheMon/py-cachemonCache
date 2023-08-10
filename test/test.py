@@ -159,7 +159,7 @@ if __name__ == "__main__":
 
     cache_size = 20
     for cache_type in [FIFO, LRU, Clock, S3FIFO]:
-    # for cache_type in [S3FIFO]:
+        # for cache_type in [S3FIFO]:
         print("Testing {}".format(cache_type.__name__))
         test_cache_basic(cache_type(cache_size), cache_size)
         test_cache_callback(cache_type(cache_size), cache_size)
@@ -168,4 +168,3 @@ if __name__ == "__main__":
     testDecorator()
 
     unittest.main()
-

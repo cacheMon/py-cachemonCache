@@ -53,12 +53,17 @@ class LRUValueNode(ValueError):
     def __str__(self) -> str:
         return (
             "LRUValueNode(key: {}, value: {}, exp_time: {}, prev {}, next {})".format(
-                self.key, self.value, self.exp_time, self.prev is not None, self.next is not None
+                self.key,
+                self.value,
+                self.exp_time,
+                self.prev is not None,
+                self.next is not None,
             )
         )
 
     def __repr__(self) -> str:
         return self.__str__()
+
 
 class LRU(Cache):
     def __init__(
@@ -72,7 +77,7 @@ class LRU(Cache):
         *args,
         **kwargs
     ):
-        """ create a LRU cache
+        """create a LRU cache
 
         Args:
             cache_size (int): cache size in objects
@@ -86,7 +91,15 @@ class LRU(Cache):
             ValueError: _description_
         """
         super().__init__(
-            cache_size, dram_size_mb, flash_size_mb, flash_path, ttl_sec, eviction_callback, *args, **kwargs
+            "LRU",
+            cache_size,
+            dram_size_mb,
+            flash_size_mb,
+            flash_path,
+            ttl_sec,
+            eviction_callback,
+            *args,
+            **kwargs
         )
 
         self.head = None
@@ -221,9 +234,8 @@ class LRU(Cache):
             data.append(str(node))
             assert len(data) <= self.cache_size
             node = node.next
-        
+
         return "\n".join(data)
-    
+
     def __str__(self) -> str:
         return self.__repr__()
-

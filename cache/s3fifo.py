@@ -57,6 +57,7 @@ class S3FIFO(Cache):
             ValueError: _description_
         """
         super().__init__(
+            "S3FIFO",
             cache_size,
             dram_size_mb,
             flash_size_mb,
@@ -71,6 +72,9 @@ class S3FIFO(Cache):
         self.small_fifo_size_ratio = kwargs.get("small_fifo_size_ratio", 0.1)
         self.small_fifo_size = int(cache_size * self.small_fifo_size_ratio)
         self.main_fifo_size = cache_size - self.small_fifo_size
+
+        if self.small_fifo_size < 10:
+            raise RuntimeError("S3FIFO needs at least 100 cache size")
 
         self.small_fifo = deque()
         self.main_fifo = deque()
@@ -150,7 +154,8 @@ class S3FIFO(Cache):
                 self.ghost_fifo.append(node)
                 while len(self.ghost_fifo) > self.main_fifo_size:
                     ghost_to_evict = self.ghost_fifo.popleft()
-                    del self.table[ghost_to_evict.key]
+                    if ghost_to_evict.key is not None:
+                        del self.table[ghost_to_evict.key]
 
                 return node.key
 
