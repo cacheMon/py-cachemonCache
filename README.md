@@ -10,8 +10,9 @@ It uses a similar interface as `dict` so it can be used as a drop-in replacement
 
 
 ## News 
-* 2023-10-01: CachemonCache is released!
-* 
+* 2023-08-01: CachemonCache is under development!
+<!-- * 2023-10-01: CachemonCache is released! -->
+
 
 
 ## Installation
