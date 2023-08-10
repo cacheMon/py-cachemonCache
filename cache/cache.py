@@ -37,6 +37,12 @@ class Cache(object):
         self.ttl_sec = ttl_sec
         self.eviction_callback = eviction_callback
 
+        self.n_get = 0
+        self.n_hit = 0
+        self.n_put = 0
+        self.n_delete = 0
+        self.n_evict = 0
+
         # Create an empty hash table.
         self.table = {}
 

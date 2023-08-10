@@ -33,6 +33,7 @@ def test_cache_basic(cache, cache_size):
     # test eviction
     for i in range(cache_size):
         cache.put(str(i * 10) + "a", i)
+        assert cache[str(i * 10) + "a"] == i, "{} == {}".format(cache[str(i)], i)
 
     # test new data
     for i in range(cache_size):
@@ -156,9 +157,9 @@ def testDecorator():
 if __name__ == "__main__":
     random.seed()
 
-    cache_size = 8
-    for cache_type in [FIFO, LRU, Clock]:
-    # for cache_type in [Clock]:
+    cache_size = 20
+    for cache_type in [FIFO, LRU, Clock, S3FIFO]:
+    # for cache_type in [S3FIFO]:
         print("Testing {}".format(cache_type.__name__))
         test_cache_basic(cache_type(cache_size), cache_size)
         test_cache_callback(cache_type(cache_size), cache_size)

@@ -7,7 +7,7 @@ from .cache import Cache
 
 
 # Class for the doubly-linked-list node objects.
-class SieveValueNode(ValueError):
+class SieveValueNode():
     __slots__ = ("key", "value", "exp_time", "next", "prev")
 
     def __init__(self):
@@ -25,7 +25,7 @@ class Sieve(Cache):
         dram_size_mb: int = 0,
         flash_size_mb: int = 0,
         flash_path: str = None,
-        ttl_sec: int = sys.maxsize,
+        ttl_sec: int = sys.maxsize // 10,
         eviction_callback: Callable = None,
         *args,
         **kwargs
@@ -37,7 +37,7 @@ class Sieve(Cache):
             dram_size_mb (int, optional): dram size in MB, if specified, cache_size will be ignored, currently not used. Defaults to 0.
             flash_size_mb (int, optional): flash size in MB. Defaults to 0.
             flash_path (str, optional): path to a file on the flash. Defaults to None.
-            ttl_sec (int, optional): the default retention time. Defaults to sys.maxsize.
+            ttl_sec (int, optional): the default retention time. Defaults to sys.maxsize // 10.
             eviction_callback (Callable, optional): eviction callback. Defaults to None.
 
         Raises:
@@ -53,7 +53,7 @@ class Sieve(Cache):
         if flash_size_mb > 0 or flash_path is not None:
             raise ValueError("Sieve is the only supported flash cache")
 
-    def put(self, key: Any, value: Any, ttl_sec: int = sys.maxsize) -> None:
+    def put(self, key: Any, value: Any, ttl_sec: int = sys.maxsize // 10) -> None:
         """insert a key value pair into the cache
         if the key is in the cache, the value will be updated
         """
@@ -104,9 +104,14 @@ class Sieve(Cache):
         return key_to_evict
 
     def get(self, key, default=None):
-        node = self.get_base(key, default)
+        if key not in self.table:
+            return default
 
-        if node is None:
+        node = self.table[key]
+
+        if node.exp_time < time.time():
+            del self[key]
+            self.remove_from_list(node)
             return default
 
         return node.value

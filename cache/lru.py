@@ -67,7 +67,7 @@ class LRU(Cache):
         dram_size_mb: int = 0,
         flash_size_mb: int = 0,
         flash_path: str = None,
-        ttl_sec: int = sys.maxsize,
+        ttl_sec: int = sys.maxsize // 10,
         eviction_callback: Callable = None,
         *args,
         **kwargs
@@ -79,7 +79,7 @@ class LRU(Cache):
             dram_size_mb (int, optional): dram size in MB, if specified, cache_size will be ignored, currently not used. Defaults to 0.
             flash_size_mb (int, optional): flash size in MB. Defaults to 0.
             flash_path (str, optional): path to a file on the flash. Defaults to None.
-            ttl_sec (int, optional): the default retention time. Defaults to sys.maxsize.
+            ttl_sec (int, optional): the default retention time. Defaults to sys.maxsize // 10.
             eviction_callback (Callable, optional): eviction callback. Defaults to None.
 
         Raises:
@@ -95,10 +95,12 @@ class LRU(Cache):
         if flash_size_mb > 0 or flash_path is not None:
             raise ValueError("S3FIFO is the only supported flash cache")
 
-    def put(self, key: Any, value: Any, ttl_sec: int = sys.maxsize) -> None:
+    def put(self, key: Any, value: Any, ttl_sec: int = sys.maxsize // 10) -> None:
         """insert a key value pair into the cache
         if the key is in the cache, the value will be updated
         """
+
+        self.n_put += 1
 
         if key in self.table:
             node = self.table[key]
@@ -128,6 +130,8 @@ class LRU(Cache):
             self.evict()
 
     def get(self, key, default=None):
+        self.n_get += 1
+
         if key not in self.table:
             return default
 
@@ -140,6 +144,7 @@ class LRU(Cache):
 
         self.prepend_to_head(node)
 
+        self.n_hit += 1
         return node.value
 
     def evict(self) -> Any:
@@ -148,6 +153,8 @@ class LRU(Cache):
         Returns:
             the evicted key
         """
+
+        self.n_evict += 1
 
         assert self.tail is not None
 
@@ -170,6 +177,8 @@ class LRU(Cache):
         Args:
             key (Any): the key to remove
         """
+
+        self.n_delete += 1
 
         node = self.table[key]
 

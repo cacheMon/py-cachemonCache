@@ -24,7 +24,7 @@ class Clock(Cache):
         dram_size_mb: int = 0,        
         flash_size_mb: int = 0,
         flash_path: str = None,
-        ttl_sec: int = sys.maxsize,
+        ttl_sec: int = sys.maxsize // 10,
         eviction_callback: Callable = None,
         *args,
         **kwargs
@@ -57,10 +57,11 @@ class Clock(Cache):
             self.clock_buffer[self.clock_pointer].visited = False
             self.clock_pointer = (self.clock_pointer + 1) % self.cache_size
 
-    def put(self, key: Any, value: Any, ttl_sec: int = sys.maxsize) -> None:
+    def put(self, key: Any, value: Any, ttl_sec: int = sys.maxsize // 10) -> None:
         """insert a key value pair into the cache
         if the key is in the cache, the value will be updated
         """
+        self.n_put += 1
 
         if key in self.table:
             buf_idx = self.table[key]
@@ -88,6 +89,8 @@ class Clock(Cache):
         self.clock_pointer = (self.clock_pointer + 1) % self.cache_size
 
     def get(self, key, default=None):
+        self.n_get += 1
+
         if key not in self.table:
             return default
 
@@ -101,6 +104,7 @@ class Clock(Cache):
             node.value = None
             return default
 
+        self.n_hit += 1
         return node.value
 
     def evict(self) -> Any:
@@ -109,6 +113,8 @@ class Clock(Cache):
         Returns:
             the evicted key
         """
+
+        self.n_evict += 1
 
         assert self.clock_buffer[self.clock_pointer].key is not None
 
@@ -127,6 +133,8 @@ class Clock(Cache):
         Args:
             key (Any): the key to remove
         """
+
+        self.n_delete += 1
 
         node_idx = self.table[key]
 
