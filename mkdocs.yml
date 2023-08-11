@@ -1,0 +1,51 @@
+site_name: cachemonCache
+site_url: https://github.com/cachemon/cachemonCache
+site_author: Juncheng Yang
+site_description: a Python cache library
+
+repo_name: cachemon/cachemonCache
+repo_url: https://github.com/cachemon/cachemonCache
+
+copyright: Copyright (c) 2023-present Juncheng Yang <REPLACE_EMAIL>
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  font:
+    text: Roboto
+    code: Roboto Mono
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+
+plugins:
+  - search:
+  - git-revision-date-localized:
+      type: timeago
+      enable_creation_date: true
+  - mkdocstrings:
+
+extra:
+  social:
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/cachemonCache/
+    - icon: fontawesome/brands/github
+      link: https://github.com/cachemon
+    # - icon: fontawesome/brands/twitter
+    #   link: https://twitter.com/REPLACE_TWITTER_USERNAME
+    # - icon: fontawesome/brands/linkedin
+    #   link: https://www.linkedin.com/in/REPLACE_LINKEDIN_USERNAME/
+
+nav:
+  - Home: index.md
+  - License: license.md

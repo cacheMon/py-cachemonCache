@@ -1,9 +1,10 @@
 import functools
-from cache.fifo import FIFO
-from cache.lru import LRU
-from cache.clock import Clock
-from cache.s3fifo import S3FIFO
-# from cache.sieve import Sieve
+from .fifo import FIFO
+from .lru import LRU
+from .clock import Clock
+from .s3fifo import S3FIFO
+
+# from .sieve import Sieve
 
 
 class cacheDecorator(object):
@@ -14,8 +15,8 @@ class cacheDecorator(object):
             self.cache = LRU(size)
         elif eviction == "Clock":
             self.cache = Clock(size)
-        # elif eviction == "S3FIFO":
-        #     self.cache = S3FIFO(size)
+        elif eviction == "S3FIFO":
+            self.cache = S3FIFO(size)
         # elif eviction == "SIEVE":
         #     self.cache = Sieve(size)
         else:

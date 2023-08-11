@@ -1,0 +1,102 @@
+[build-system]
+build-backend = "hatchling.build"
+requires = ["hatchling"]
+
+[project]
+authors = [
+  {name = "Juncheng Yang"},
+]
+classifiers = [
+  # "Development Status :: 5 - Production/Stable",
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Operating System :: POSIX",
+  "Programming Language :: C",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+]
+description = "a cache library with dict interface"
+dynamic = ["version"]
+keywords = [
+  "cache",
+  "dict",
+  "lru",
+  "s3fifo",
+  "sieve",
+  "fast",
+]
+license = "MIT"
+name = "cachemonCache"
+readme = "README.md"
+
+[project.optional-dependencies]
+test = [
+  "pytest",
+]
+
+[project.urls]
+Homepage = "https://github.com/cachemon/py-cachemonCache"
+Source = "https://github.com/cachemon/py-cachemonCache"
+
+[tool.hatch.version]
+path = "src/cachemonCache/__init__.py"
+
+[tool.hatch.envs.quality]
+features = [
+  "quality",
+]
+
+[tool.hatch.envs.quality.scripts]
+check = [
+  "black --check --diff --preview src tests",
+  "ruff src tests",
+]
+format = [
+  "black --preview src tests",
+  "ruff --fix src tests",
+  "check",
+]
+
+[tool.ruff]
+ignore = [
+  "E501", # line too long, handled by black
+  "B008", # do not perform function calls in argument defaults
+  "C901", # too complex
+]
+select = [
+  "E", # pycodestyle errors
+  "W", # pycodestyle warnings
+  "F", # pyflakes
+  "I", # isort
+  "C", # flake8-comprehensions
+  "B", # flake8-bugbear
+]
+
+[tool.ruff.isort]
+known-first-party = ["REPLACE_PACKAGE_NAME"]
+
+[tool.hatch.envs.tests]
+features = [
+  "tests",
+]
+
+[tool.hatch.build.targets.sdist]
+exclude = [
+  "/data",
+  "/.github",
+  "/.vscode",
+  "/docs",
+  "/.devcontainer",
+  "/.pre-commit-config.yaml",
+  "/.gitignore",
+  "/tests",
+  "/Dockerfile",
+  "/.dockerignore",
+]

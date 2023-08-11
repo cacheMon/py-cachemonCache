@@ -5,3 +5,4 @@ from .cache.s3fifo import S3FIFO
 from .cache.sieve import Sieve
 
 
+__version__ = "0.0.2"
