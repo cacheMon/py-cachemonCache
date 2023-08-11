@@ -4,6 +4,7 @@ import time
 
 BASEPATH = os.path.dirname(os.path.abspath(__file__)) + "/../"
 sys.path.append(BASEPATH)
+sys.path.append(BASEPATH + "/../../")
 from cache import *
 from bench.trace_reader import traceReaderLibcachesim, traceReaderCSV
 
@@ -33,18 +34,18 @@ def run_trace(cache, reader):
 if __name__ == "__main__":
     reader1, cache_size1 = (
         traceReaderLibcachesim(
-            "{}/data/cloudphysics.oracleGeneral.bin".format(BASEPATH),
+            "{}/../../data/cloudphysics.oracleGeneral.bin".format(BASEPATH),
         ),
         12000,
     )
 
     reader2, cache_size2 = (
-        traceReaderCSV("{}/data/twitter_cluster52_10m.csv".format(BASEPATH)),
+        traceReaderCSV("{}/../../data/twitter_cluster52.csv".format(BASEPATH)),
         10000,
     )
 
-    reader = reader2
-    cache_size = cache_size2
+    reader = reader1
+    cache_size = cache_size1
 
     for cache_type in [
         FIFO,

@@ -71,9 +71,10 @@ def foo(x):
 ```
 
 ## Benchmark
-Python 
-RocksDB
+```bash
+python3 src/cachemonCache/bench/benchmark.py
 
+```
 
 
 
