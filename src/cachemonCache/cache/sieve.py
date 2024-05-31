@@ -44,7 +44,15 @@ class Sieve(Cache):
             ValueError: _description_
         """
         super().__init__(
-            cache_size, dram_size_mb, flash_size_mb, flash_path, ttl_sec, eviction_callback, *args, **kwargs
+            "Sieve",
+            cache_size,
+            dram_size_mb,
+            flash_size_mb,
+            flash_path,
+            ttl_sec,
+            eviction_callback,
+            *args,
+            **kwargs
         )
 
         self.head = None
@@ -78,7 +86,7 @@ class Sieve(Cache):
 
         self.prepend_to_head(node)
 
-        if len(self.table) > self.size:
+        if len(self.table) > self.cache_size:
             self.evict()
 
     def evict(self) -> Any:
